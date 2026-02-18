@@ -1,24 +1,59 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import axios from 'axios';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
+export async function GET(req: NextRequest) {
   try {
-    const { lamin, lomin, lamax, lomax } = req.query;
+    // Sydney area bounding box
+    const lamin = '-34.2';
+    const lomin = '150.8';
+    const lamax = '-33.7';
+    const lomax = '151.4';
 
-    const response = await axios.get('https://opensky-network.org/api/states/all', {
-      params: {
-        lamin: lamin || -34.1,
-        lomin: lomin || 150.5,
-        lamax: lamax || -33.5,
-        lomax: lomax || 151.5,
-      },
-      // Optional authentication if you have an OpenSky account
-      // auth: { username: 'YOUR_USERNAME', password: 'YOUR_PASSWORD' }
+    const url = `https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`;
+    
+    console.log(`[API] Fetching from: ${url}`);
+
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(30000), // increased to 30s
     });
 
-    res.status(200).json(response.data.states || []);
+    console.log(`[API] Response status: ${res.status}`);
+
+    if (res.status === 429) {
+      return NextResponse.json({ error: 'Rate limited by OpenSky' }, { status: 429 });
+    }
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    if (!data.states || data.states.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    const flights = data.states
+      .filter((f: any) => f[6] != null && f[5] != null)
+      .map((f: any) => ({
+        icao24: f[0],
+        callsign: f[1]?.trim() || '',
+        lat: f[6],
+        lon: f[5],
+        altitude: f[7] ?? 0,
+        velocity: f[9] ?? 0,
+        heading: f[10] ?? 0,
+      }));
+
+    console.log(`[API] Returning ${flights.length} flights`);
+    return NextResponse.json(flights);
+
   } catch (err: any) {
-    console.error(err.message);
-    res.status(500).json({ error: 'Failed to fetch flights' });
+    console.error('[API] Error fetching flights:', err.message);
+    return NextResponse.json(
+      { error: 'Failed to fetch flights', details: err.message },
+      { status: 500 }
+    );
   }
 }
