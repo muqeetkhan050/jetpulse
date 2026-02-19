@@ -1,7 +1,7 @@
 
 
 'use client';
-
+import Headline from '../headline';
 import React, { useEffect, useRef, useState, createContext } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -64,6 +64,15 @@ const changeMap=()=>{
       ref={mapContainer}
       style={{ width: "100%", height: "100%", position: "relative" }}
     >
+
+ <Headline className="absolute top-4 left-0 w-full z-[100] overflow-hidden">
+  <div className="whitespace-nowrap animate-scroll px-4">
+    Sydney Flight Tracker — Real-time 3D flight tracking for Sydney airports — Sydney Flight Tracker — Real-time 3D flight tracking for Sydney airports
+  </div>
+</Headline>
+
+
+
       {map && (
         <MapContext.Provider value={map}>
           {children}
@@ -76,6 +85,7 @@ const changeMap=()=>{
       >
         Toggle Map Style
       </button>
+
     </div>
   );
 }
