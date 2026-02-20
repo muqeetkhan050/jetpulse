@@ -37,7 +37,7 @@ export function useFlights(options: UseFlightsOptions = {}) {
       if (bbox) params.set('bbox', bbox);
       
       const url = `/api/flights?${params.toString()}`;
-      console.log('[useFlights] Fetching:', url);
+
       
       const res = await fetch(url);
       const data = await res.json();

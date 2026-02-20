@@ -7,7 +7,6 @@ import Map from './Map/Map';
 import FlightLayers from './Map/FlightLayers';
 import { useFlightTrails } from '@/hooks/useFlightTrails';
 
-// Tighter bbox around Sydney Airport
 const SYDNEY_AIRPORT_BBOX = '-34.04,150.9,-33.88,151.3';
 
 export default function FlightTracker() {

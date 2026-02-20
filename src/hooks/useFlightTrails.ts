@@ -1,39 +1,62 @@
+
+
 import { useEffect, useRef, useState } from 'react';
 import { Flight } from './useFlights';
 
-interface FlightTrail {
+export interface FlightTrail {
   icao24: string;
-  path: [number, number, number][]; // [lon, lat, altitude]
+  path: [number, number, number][];
+  isTakingOff?: boolean;
+  glowUntil?: number;
 }
+
+const TAKEOFF_ALTITUDE = 30; // meters
 
 export function useFlightTrails(flights: Flight[]) {
   const [trails, setTrails] = useState<FlightTrail[]>([]);
   const trailsRef = useRef<Map<string, FlightTrail>>(new Map());
 
   useEffect(() => {
+    const now = Date.now();
+
     flights.forEach(flight => {
-      const existing = trailsRef.current.get(flight.icao24);
+      const altitude = flight.altitude || 0;
 
       const pos: [number, number, number] = [
         flight.lon,
         flight.lat,
-        flight.altitude || 0,
+        altitude,
       ];
 
+      const existing = trailsRef.current.get(flight.icao24);
+
       if (existing) {
-        // Add new position if moved
-        const lastPos = existing.path[existing.path.length - 1];
+        const lastPoint = existing.path[existing.path.length - 1];
+        const previousAltitude = lastPoint[2];
+
+        // Detect takeoff event
         if (
-          lastPos[0] !== pos[0] ||
-          lastPos[1] !== pos[1] ||
-          lastPos[2] !== pos[2]
+          previousAltitude <= TAKEOFF_ALTITUDE &&
+          altitude > TAKEOFF_ALTITUDE
+        ) {
+          existing.isTakingOff = true;
+          existing.glowUntil = now + 3000; // glow 3 seconds
+        }
+
+        if (
+          lastPoint[0] !== pos[0] ||
+          lastPoint[1] !== pos[1] ||
+          lastPoint[2] !== pos[2]
         ) {
           existing.path.push(pos);
-          // Limit path length to 50 for performance
           if (existing.path.length > 50) existing.path.shift();
         }
+
       } else {
-        trailsRef.current.set(flight.icao24, { icao24: flight.icao24, path: [pos] });
+        trailsRef.current.set(flight.icao24, {
+          icao24: flight.icao24,
+          path: [pos],
+        });
       }
     });
 
