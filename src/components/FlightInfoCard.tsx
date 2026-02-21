@@ -178,15 +178,19 @@ export default function FlightInfoCard({ flight, onClose }: FlightInfoCardProps)
             {/* Route Info Placeholder */}
             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 text-center border border-white/10">
               <p className="text-gray-400 text-sm">
-                Route information is not available from OpenSky API.
+                Your agent can talk to other passenget agents on the same flight, share information, and coordinate actions.
               </p>
-              <p className="text-gray-500 text-xs mt-2">
-                This would show origin, destination, and waypoints.
-              </p>
+   
+             <button className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors">
+              Get boarding pass for you AI Agent
+             </button>
+             <h3 className="text-xs text-gray-500 mt-2">Muqeeet on flight</h3>
             </div>
           </div>
         )}
       </div>
+      <h1 className="text-xs text-gray-500 mt-2">Muqeeet on flight</h1>
+      <h1 className="text-xs text-gray-500 mt-2">Khizra on flight</h1>
     </div>
   );
 }
