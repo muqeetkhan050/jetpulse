@@ -190,7 +190,7 @@ export default function FlightInfoCard({ flight, onClose }: FlightInfoCardProps)
         )}
       </div>
       <h1 className="text-xs text-gray-500 mt-2">Muqeeet on flight</h1>
-      <h1 className="text-xs text-gray-500 mt-2">Khizra on flight</h1>
+
     </div>
   );
 }

@@ -68,7 +68,11 @@ export default function FlightLayers({
       getAngle: (d: Flight) => (d.heading || 0) - 90,
       billboard: false, // Set to false to see rotation
       onClick: (info) => {
-        if (onPlaneClick && info.object) onPlaneClick(info.object as Flight);
+        console.log('[FlightLayers] Clicked:', info.object);
+        if (onPlaneClick && info.object) {
+          console.log('[FlightLayers] Calling onPlaneClick with:', info.object);
+          onPlaneClick(info.object as Flight);
+        }
       },
     });
 

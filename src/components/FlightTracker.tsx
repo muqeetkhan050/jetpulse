@@ -1,28 +1,49 @@
-
-
 'use client';
 
-import { useFlights } from '@/hooks/useFlights';
+import { useState } from 'react';
+import { useFlights, type Flight } from '@/hooks/useFlights';
 import Map from './Map/Map';
 import FlightLayers from './Map/FlightLayers';
 import { useFlightTrails } from '@/hooks/useFlightTrails';
+import AgentModal from './AgentModal';
 
 const SYDNEY_AIRPORT_BBOX = '-34.04,150.9,-33.88,151.3';
 
 export default function FlightTracker() {
   const { flights, loading, error, refetch } = useFlights({
     bbox: SYDNEY_AIRPORT_BBOX,
-    refreshInterval: 10000, // 10s for anonymous, 5s if authenticated
+    refreshInterval: 10000,
   });
 
   const trails = useFlightTrails(flights);
+  
+  const [selectedPlane, setSelectedPlane] = useState<{
+    icao24: string;
+    callsign?: string;
+    altitude?: number;
+    originCountry?: string;
+  } | null>(null);
+  
+  const [showModal, setShowModal] = useState(false);
 
-  console.log('[FlightTracker] Flights:', flights.length, 'Loading:', loading, 'Error:', error);
+  const handlePlaneClick = (flight: Flight) => {
+    setSelectedPlane({
+      icao24: flight.icao24,
+      callsign: flight.callsign,
+      altitude: flight.altitude ?? undefined,
+      originCountry: flight.originCountry,
+    });
+    setShowModal(true);
+  };
 
   return (
     <div className="relative w-full h-full">
       <Map>
-        <FlightLayers flights={flights} trails={trails} />
+        <FlightLayers 
+          flights={flights} 
+          trails={trails} 
+          onPlaneClick={handlePlaneClick}
+        />
       </Map>
       
       {/* Debug Overlay */}
@@ -39,17 +60,33 @@ export default function FlightTracker() {
         </button>
       </div>
 
-      {/* Flight List */}
+      {/* Flight List with click handler */}
       {flights.length > 0 && (
         <div className="absolute bottom-4 left-4 bg-black/80 text-white p-4 rounded z-50 max-h-64 overflow-auto">
-          <h3 className="font-bold mb-2">Active Flights</h3>
+          <h3 className="font-bold mb-2">Active Flights (click to add agent)</h3>
           {flights.map(f => (
-            <div key={f.icao24} className="text-xs mb-1">
+            <button
+              key={f.icao24}
+              onClick={() => handlePlaneClick(f)}
+              className="w-full text-left text-xs mb-1 hover:text-blue-400 transition-colors"
+            >
               {f.callsign || 'Unknown'} | {f.altitude ? `${Math.round(f.altitude)}m` : 'GND'} | {Math.round(f.velocity)}m/s
-            </div>
+            </button>
           ))}
         </div>
       )}
+
+      {/* Agent Modal */}
+      <AgentModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        planeId={selectedPlane?.icao24 || ''}
+        planeInfo={selectedPlane ? {
+          callsign: selectedPlane.callsign,
+          altitude: selectedPlane.altitude,
+          originCountry: selectedPlane.originCountry,
+        } : undefined}
+      />
     </div>
   );
 }
