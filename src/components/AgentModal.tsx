@@ -1,25 +1,204 @@
-'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+// // "use client";
+// // import { useState } from "react";
+// // import { getOwnerId } from "@/lib/getOwnerId";
 
-interface Agent {
-  id: string;
-  planeId: string;
-  ownerId: string;
-  name: string;
-  personality: string;
-  joinedAt: number;
-}
+// // interface AgentModalProps {
+// //   planeId: string;
+// //   onClose: () => void;
+// // }
 
-interface Message {
-  id: string;
-  planeId: string;
-  agentId: string;
-  agentName: string;
-  content: string;
-  timestamp: number;
-  type: 'user' | 'agent' | 'system';
-}
+// // export default function AgentModal({ planeId, onClose }: AgentModalProps) {
+// //   const [name, setName] = useState("");
+// //   const [personality, setPersonality] = useState("");
+
+// //   const createAgent = async () => {
+// //     await fetch("/api/agents", {
+// //       method: "POST",
+// //       headers: { "Content-Type": "application/json" },
+// //       body: JSON.stringify({
+// //         planeId,
+// //         ownerId: getOwnerId(),
+// //         name,
+// //         personality,
+// //       }),
+// //     });
+
+// //     onClose();
+// //   };
+
+// //   return (
+// //     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+// //       <div className="bg-gray-900 p-6 rounded w-96">
+// //         <div className="flex justify-between items-center mb-4">
+// //           <h2 className="text-white text-xl font-bold">Create AI Agent</h2>
+// //           <button
+// //             onClick={onClose}
+// //             className="text-white hover:text-gray-300 text-2xl font-bold"
+// //           >
+// //             ×
+// //           </button>
+// //         </div>
+        
+// //         <input
+// //           className="w-full mb-3 p-2 bg-gray-800 text-white rounded"
+// //           placeholder="Agent Name"
+// //           value={name}
+// //           onChange={(e) => setName(e.target.value)}
+// //         />
+// //         <textarea
+// //           className="w-full mb-3 p-2 bg-gray-800 text-white rounded"
+// //           placeholder="Personality"
+// //           rows={4}
+// //           value={personality}
+// //           onChange={(e) => setPersonality(e.target.value)}
+// //         />
+// //         <div className="flex gap-2">
+// //           <button 
+// //             onClick={createAgent} 
+// //             className="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white transition-colors"
+// //           >
+// //             Join Flight
+// //           </button>
+// //           <button 
+// //             onClick={onClose}
+// //             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+// //           >
+// //             Cancel
+// //           </button>
+// //         </div>
+// //       </div>
+// //     </div>
+// //   );
+// // }
+
+
+// "use client";
+// import { useState } from "react";
+// import { getOwnerId } from "@/lib/getOwnerId";
+
+// interface AgentModalProps {
+//   planeId: string;
+//   onClose: () => void;
+// }
+
+// export default function AgentModal({ planeId, onClose }: AgentModalProps) {
+//   const [name, setName] = useState("");
+//   const [personality, setPersonality] = useState("");
+//   const [error, setError] = useState<string | null>(null);
+//   const [loading, setLoading] = useState(false);
+
+//   const createAgent = async () => {
+//     // Validation
+//     if (!name.trim()) {
+//       setError("Please enter an agent name");
+//       return;
+//     }
+
+//     if (!personality.trim()) {
+//       setError("Please enter a personality description");
+//       return;
+//     }
+
+//     setLoading(true);
+//     setError(null);
+
+//     try {
+//       const payload = {
+//         planeId,
+//         ownerId: getOwnerId(),
+//         name: name.trim(),
+//         personality: personality.trim(),
+//       };
+
+//       console.log("Creating agent with payload:", payload);
+
+//       const response = await fetch("/api/agents", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       });
+
+//       const data = await response.json();
+
+//       if (!response.ok) {
+//         throw new Error(data.error || `HTTP error! status: ${response.status}`);
+//       }
+
+//       console.log("Agent created successfully:", data);
+//       onClose();
+//     } catch (err) {
+//       console.error("Error creating agent:", err);
+//       setError(err instanceof Error ? err.message : "Failed to create agent");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+//       <div className="bg-gray-900 p-6 rounded w-96">
+//         <div className="flex justify-between items-center mb-4">
+//           <h2 className="text-white text-xl font-bold">Create AI Agent</h2>
+//           <button
+//             onClick={onClose}
+//             className="text-white hover:text-gray-300 text-2xl font-bold"
+//           >
+//             ×
+//           </button>
+//         </div>
+
+//         {error && (
+//           <div className="bg-red-500/10 border border-red-500/20 rounded p-3 mb-4">
+//             <p className="text-red-400 text-sm">⚠️ {error}</p>
+//           </div>
+//         )}
+        
+//         <input
+//           className="w-full mb-3 p-2 bg-gray-800 text-white rounded"
+//           placeholder="Agent Name (e.g., Travel Buddy)"
+//           value={name}
+//           onChange={(e) => {
+//             setName(e.target.value);
+//             setError(null);
+//           }}
+//         />
+        
+//         <textarea
+//           className="w-full mb-3 p-2 bg-gray-800 text-white rounded"
+//           placeholder="Personality (e.g., Friendly and helpful travel companion)"
+//           rows={4}
+//           value={personality}
+//           onChange={(e) => {
+//             setPersonality(e.target.value);
+//             setError(null);
+//           }}
+//         />
+        
+//         <div className="flex gap-2">
+//           <button 
+//             onClick={createAgent}
+//             disabled={loading}
+//             className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-4 py-2 rounded text-white transition-colors"
+//           >
+//             {loading ? "Creating..." : "Join Flight"}
+//           </button>
+//           <button 
+//             onClick={onClose}
+//             disabled={loading}
+//             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white rounded transition-colors"
+//           >
+//             Cancel
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+"use client";
+import { useState, useEffect } from "react";
+import { getOwnerId } from "@/lib/getOwnerId";
 
 interface AgentModalProps {
   isOpen: boolean;
@@ -33,263 +212,145 @@ interface AgentModalProps {
 }
 
 export default function AgentModal({ isOpen, onClose, planeId, planeInfo }: AgentModalProps) {
-  const [step, setStep] = useState<'form' | 'chat'>('form');
-  const [name, setName] = useState('');
-  const [personality, setPersonality] = useState('friendly');
-  const [ownerId] = useState(() => `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
-  const [myAgent, setMyAgent] = useState<Agent | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [name, setName] = useState("");
+  const [personality, setPersonality] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const lastMessageRef = useRef<number>(0);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Poll for new messages
+  // Reset form when modal closes
   useEffect(() => {
-    if (step !== 'chat' || !myAgent) return;
+    if (!isOpen) {
+      setName("");
+      setPersonality("");
+      setError(null);
+    }
+  }, [isOpen]);
 
-    const fetchMessages = async () => {
-      try {
-        const res = await fetch(`/api/agents?planeId=${planeId}`);
-        const data = await res.json();
-        
-        if (data.messages && data.messages.length > lastMessageRef.current) {
-          const newMessages = data.messages.slice(lastMessageRef.current);
-          setMessages(prev => [...prev, ...newMessages]);
-          lastMessageRef.current = data.messages.length;
-          
-          // Scroll to bottom
-          setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
-        }
-      } catch (err) {
-        console.error('Error fetching messages:', err);
-      }
-    };
+  const createAgent = async () => {
+    // Validation
+    if (!name.trim()) {
+      setError("Please enter an agent name");
+      return;
+    }
 
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 2000); // Poll every 2 seconds
-
-    return () => clearInterval(interval);
-  }, [step, planeId, myAgent]);
-
-  // Check if user already has agent when modal opens
-  useEffect(() => {
-    if (!isOpen) return;
-
-    fetch(`/api/agents?planeId=${planeId}&ownerId=${ownerId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.userAgent) {
-          setMyAgent(data.userAgent);
-          setMessages(data.messages || []);
-          setStep('chat');
-          lastMessageRef.current = data.messages?.length || 0;
-        }
-      })
-      .catch(console.error);
-  }, [isOpen, planeId, ownerId]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
+    if (!personality.trim()) {
+      setError("Please enter a personality description");
+      return;
+    }
 
     setLoading(true);
+    setError(null);
+
     try {
-      const res = await fetch('/api/agents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planeId,
-          ownerId,
-          name: name.trim(),
-          personality,
-        }),
+      const payload = {
+        planeId,
+        ownerId: getOwnerId(),
+        name: name.trim(),
+        personality: personality.trim(),
+      };
+
+      console.log("Creating agent with payload:", payload);
+
+      const response = await fetch("/api/agents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        alert(data.error || 'Failed to add agent');
-        return;
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
       }
 
-      setMyAgent(data.agent);
-      setStep('chat');
+      console.log("Agent created successfully:", data);
+      onClose();
     } catch (err) {
-      console.error(err);
-      alert('Failed to add agent');
+      console.error("Error creating agent:", err);
+      setError(err instanceof Error ? err.message : "Failed to create agent");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || !myAgent) return;
-
-    try {
-      await fetch('/api/agents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planeId,
-          agentId: myAgent.id,
-          message: input.trim(),
-        }),
-      });
-
-      setInput('');
-      
-      // Immediately fetch updated messages
-      const res = await fetch(`/api/agents?planeId=${planeId}`);
-      const data = await res.json();
-      setMessages(data.messages || []);
-      lastMessageRef.current = data.messages?.length || 0;
-    } catch (err) {
-      console.error('Error sending message:', err);
-    }
-  };
-
-  const handleLeave = async () => {
-    if (myAgent) {
-      await fetch(`/api/agents?agentId=${myAgent.id}`, { method: 'DELETE' });
-    }
-    setMyAgent(null);
-    setMessages([]);
-    setStep('form');
-    setName('');
-    onClose();
-  };
-
+  // Don't render if not open
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-xl w-full max-w-md max-h-[80vh] flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-700 flex justify-between items-center">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-gray-900 p-6 rounded-lg w-96 max-w-[90vw]">
+        <div className="flex justify-between items-center mb-4">
           <div>
-            <h2 className="text-white font-bold text-lg">
-              {step === 'form' ? 'Add AI Agent' : '✈️ Plane Chat'}
-            </h2>
+            <h2 className="text-white text-xl font-bold">Create AI Agent</h2>
             {planeInfo?.callsign && (
               <p className="text-gray-400 text-sm">
-                {planeInfo.callsign} • {planeInfo.altitude ? `${Math.round(planeInfo.altitude)}m` : 'N/A'}
+                Flight: {planeInfo.callsign}
+                {planeInfo.altitude && ` • ${Math.round(planeInfo.altitude)}m`}
               </p>
             )}
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">×</button>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-gray-300 text-2xl font-bold"
+          >
+            ×
+          </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-hidden flex flex-col">
-          {step === 'form' ? (
-            <form onSubmit={handleSubmit} className="p-4 space-y-4">
-              <div>
-                <label className="block text-gray-300 text-sm mb-1">Agent Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="e.g., Captain Chat"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 text-sm mb-1">Personality</label>
-                <select
-                  value={personality}
-                  onChange={e => setPersonality(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                >
-                  <option value="friendly">Friendly & Curious</option>
-                  <option value="professional">Professional & Direct</option>
-                  <option value="humorous">Humorous & Witty</option>
-                  <option value="expert">Expert & Informative</option>
-                </select>
-              </div>
-
-              <p className="text-xs text-gray-500">
-                Your agent will chat with up to 9 other agents on this plane in real-time until it lands.
-              </p>
-
-              <button
-                type="submit"
-                disabled={loading || !name.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 text-white font-semibold py-2 rounded-lg transition-colors"
-              >
-                {loading ? 'Joining...' : 'Add Agent to Plane'}
-              </button>
-            </form>
-          ) : (
-            <>
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {messages.map(msg => (
-                  <div
-                    key={msg.id}
-                    className={`${
-                      msg.type === 'system'
-                        ? 'text-center'
-                        : msg.agentId === myAgent?.id
-                        ? 'text-right'
-                        : 'text-left'
-                    }`}
-                  >
-                    {msg.type === 'system' ? (
-                      <span className="text-gray-500 text-xs">{msg.content}</span>
-                    ) : (
-                      <div
-                        className={`inline-block max-w-[80%] rounded-lg px-3 py-2 ${
-                          msg.agentId === myAgent?.id
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-700 text-gray-100'
-                        }`}
-                      >
-                        <span className="text-xs font-bold block opacity-70">{msg.agentName}</span>
-                        <span>{msg.content}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    placeholder="Type a message..."
-                    className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!input.trim()}
-                    className="bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 text-white px-4 py-2 rounded-lg"
-                  >
-                    Send
-                  </button>
-                </div>
-              </form>
-
-              {/* Leave button */}
-              <div className="px-4 pb-4">
-                <button
-                  onClick={handleLeave}
-                  className="text-red-400 text-sm hover:underline"
-                >
-                  Leave conversation
-                </button>
-              </div>
-            </>
-          )}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded p-3 mb-4">
+            <p className="text-red-400 text-sm">⚠️ {error}</p>
+          </div>
+        )}
+        
+        <div className="space-y-3">
+          <div>
+            <label className="block text-gray-400 text-sm mb-1">
+              Agent Name
+            </label>
+            <input
+              className="w-full p-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
+              placeholder="e.g., Travel Buddy, Business Pro"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError(null);
+              }}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-400 text-sm mb-1">
+              Personality
+            </label>
+            <textarea
+              className="w-full p-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none resize-none"
+              placeholder="e.g., Friendly and helpful travel companion who loves to chat"
+              rows={4}
+              value={personality}
+              onChange={(e) => {
+                setPersonality(e.target.value);
+                setError(null);
+              }}
+            />
+          </div>
+        </div>
+        
+        <div className="flex gap-2 mt-4">
+          <button 
+            onClick={createAgent}
+            disabled={loading}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded text-white transition-colors font-medium"
+          >
+            {loading ? "Creating..." : "Join Flight"}
+          </button>
+          <button 
+            onClick={onClose}
+            disabled={loading}
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:cursor-not-allowed text-white rounded transition-colors"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
