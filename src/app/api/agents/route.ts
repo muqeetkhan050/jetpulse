@@ -1,77 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { addAgentToPlane, getAgents, getMessages, removeAgent, addMessage } from '@/lib/plane-agents';
+import {NextResponse} from  "next/server";
+import {connectDB} from '@/lib/db'
+import {Agent} from '@/lib/models'
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    
-    // Check if this is a message send or agent creation
-    if (body.message && body.agentId && body.planeId) {
-      // Sending a message
-      const message = addMessage(body.planeId, body.agentId, body.message);
-      if (!message) {
-        return NextResponse.json({ error: 'Agent not found' }, { status: 400 });
-      }
-      return NextResponse.json({ success: true, message });
-    }
-    
-    // Otherwise, create a new agent
-    const { planeId, ownerId, name, personality } = body;
 
-    if (!planeId || !ownerId || !name) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
+export async function POST(req:Request){
+  const {planeId, ownerId,name, personality}=await req.json();
 
-    const agent = {
-      id: `agent-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      planeId,
-      ownerId,
-      name,
-      personality: personality || 'friendly',
-      joinedAt: Date.now(),
-    };
-
-    const result = addAgentToPlane(planeId, agent);
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-
-    return NextResponse.json({ success: true, agent });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  await connectDB();
+  const count =await Agent.countDocuments({planeId})
+if (count>=10){
+  return NextResponse.json({error:"Plane full (10 agents max)"},{status:400})
 }
+    const existing=await Agent.findOne({planeId,ownerId})
+    if(existing){
+      return NextResponse.json({error:"You already joined this flight"},{status:400})
+    }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const planeId = searchParams.get('planeId');
-  const ownerId = searchParams.get('ownerId');
-
-  if (!planeId) {
-    return NextResponse.json({ error: 'planeId required' }, { status: 400 });
-  }
-
-  const agents = getAgents(planeId);
-  const messages = getMessages(planeId);
-
-  const userAgent = ownerId ? agents.find(a => a.ownerId === ownerId) : null;
-
-  return NextResponse.json({
-    agents,
-    messages,
-    userAgent,
+  const agent = await Agent.create({
+    planeId,
+    ownerId,
+    name,
+    personality,
   });
+
+  return NextResponse.json(agent);
 }
 
-export async function DELETE(req: NextRequest) {
+
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const agentId = searchParams.get('agentId');
+  const planeId = searchParams.get("planeId");
 
-  if (!agentId) {
-    return NextResponse.json({ error: 'agentId required' }, { status: 400 });
-  }
+  await connectDB();
 
-  const removed = removeAgent(agentId);
-  return NextResponse.json({ success: removed });
+  const agents = await Agent.find({ planeId });
+
+  return NextResponse.json(agents);
 }
