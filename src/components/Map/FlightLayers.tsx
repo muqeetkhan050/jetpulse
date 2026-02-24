@@ -1,5 +1,4 @@
 
-
 'use client';
 import { useEffect, useContext, useState, useMemo } from 'react';
 import { MapboxOverlay } from '@deck.gl/mapbox';
@@ -13,6 +12,21 @@ interface FlightLayersProps {
   onPlaneClick?: (flight: Flight) => void;
 }
 
+// Function to get color based on altitude (green to red gradient)
+function getAltitudeColor(altitude: number): [number, number, number, number] {
+  // Normalize altitude: 0m = green, 10000m = red
+  const maxAltitude = 10000;
+  const normalized = Math.min(altitude / maxAltitude, 1);
+
+  // Green (0, 255, 0) to Red (255, 0, 0)
+  const r = Math.round(255 * normalized);
+  const g = Math.round(255 * (1 - normalized));
+  const b = 0;
+  const a = 220; // Alpha
+
+  return [r, g, b, a];
+}
+
 export default function FlightLayers({
   flights,
   trails = [],
@@ -21,7 +35,6 @@ export default function FlightLayers({
   const map = useContext(MapContext);
   const [overlay, setOverlay] = useState<MapboxOverlay | null>(null);
 
-  // 1️⃣ Initialize Deck overlay
   useEffect(() => {
     if (!map) return;
 
@@ -34,7 +47,7 @@ export default function FlightLayers({
     };
   }, [map]);
 
-  // 2️⃣ Prepare layers
+  // Prepare layers
   const layers = useMemo(() => {
     if (!map) return [];
 
@@ -43,7 +56,6 @@ export default function FlightLayers({
       id: 'flights',
       data: flights,
       pickable: true,
-      // Use a reliable CDN icon as fallback, or your own /plane-icon.png
       iconAtlas: '/plane-icon_resized.png',
       iconMapping: {
         marker: { 
@@ -56,40 +68,46 @@ export default function FlightLayers({
       },
       getIcon: () => 'marker',
       getPosition: (d: Flight) => [d.lon, d.lat, d.altitude || 0],
-      getSize: 32, // Smaller base size
+      getSize: 32,
       sizeScale: 1,
-      sizeMinPixels: 12, // Minimum pixel size
-      sizeMaxPixels: 48, // Maximum pixel size
+      sizeMinPixels: 12,
+      sizeMaxPixels: 48,
       getColor: (d: Flight) => {
-        if (d.onGround) return [0, 255, 0, 255]; // green with alpha
-        if ((d.altitude || 0) < 1000) return [255, 165, 0, 255]; // orange
-        return [0, 255, 255, 255]; // cyan
+        if (d.onGround) return [0, 255, 0, 255]; // Green when on ground
+        return getAltitudeColor(d.altitude || 0); // Color based on altitude
       },
       getAngle: (d: Flight) => (d.heading || 0) - 90,
-      billboard: false, // Set to false to see rotation
+      billboard: false,
       onClick: (info) => {
-        console.log('[FlightLayers] Clicked:', info.object);
-        if (onPlaneClick && info.object) {
-          console.log('[FlightLayers] Calling onPlaneClick with:', info.object);
-          onPlaneClick(info.object as Flight);
-        }
+        if (onPlaneClick && info.object) onPlaneClick(info.object as Flight);
       },
     });
 
-    // PathLayer for trails
+    // Filter trails to only show those with 2+ points (valid paths)
+    const validTrails = trails.filter((trail) => trail.path.length > 1);
+
+    // PathLayer for trails with smooth gradient coloring
     const trailLayer = new PathLayer({
       id: 'trails',
-      data: trails,
+      data: validTrails,
       getPath: (d) => d.path,
-      getColor: [255, 255, 0, 200],
-      getWidth: 2,
-      widthMinPixels: 1,
+      getColor: (d, { index }) => {
+        // Get the altitude at this point in the path
+        if (!d.path || !d.path[index]) {
+          return [255, 255, 255, 220]; // Default white
+        }
+        const altitude = d.path[index][2] || 0;
+        return getAltitudeColor(altitude);
+      },
+      getWidth: 3, // Slightly thicker for better visibility
+      widthMinPixels: 2,
+      widthMaxPixels: 5,
     });
 
-    return [iconLayer, trailLayer];
+    return [trailLayer, iconLayer]; // Trails first so planes render on top
   }, [flights, trails, map, onPlaneClick]);
 
-  // 3️⃣ Apply layers to overlay
+  // Apply layers to overlay
   useEffect(() => {
     if (!overlay) return;
     overlay.setProps({ layers });

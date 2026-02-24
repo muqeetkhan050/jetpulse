@@ -8,6 +8,7 @@ import FlightInfoCard from '@/components/FlightInfoCard';
 import { useFlights } from '@/hooks/useFlights';
 import { useFlightTrails } from '@/hooks/useFlightTrails';
 import { Flight } from '@/hooks/useFlights';
+import Speed from '@/components/Speed';
 
 export default function Home() {
   const { flights, loading, error } = useFlights();
@@ -59,6 +60,13 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+  {selectedFlight && (
+  <div className="absolute top-4 left-4 z-50">
+    <Speed flight={selectedFlight} />
+  </div>
+)}
+
 
       {/* Flight Info Card */}
       {selectedFlight && (

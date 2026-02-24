@@ -1,23 +1,34 @@
+
+
 import { NextResponse } from 'next/server';
 
-const MOCK_FLIGHTS = [
-  { icao24: '7c6b0a', callsign: 'QFA123', originCountry: 'Australia', lat: -33.9399, lon: 151.1753, altitude: 0, onGround: true, velocity: 0, heading: 45, verticalRate: 0, lastContact: Date.now() },
-  { icao24: '7c6b0b', callsign: 'QFA456', originCountry: 'Australia', lat: -33.9350, lon: 151.1800, altitude: 500, onGround: false, velocity: 150, heading: 90, verticalRate: 5, lastContact: Date.now() },
-  { icao24: '7c6b0c', callsign: 'JST789', originCountry: 'Australia', lat: -33.9450, lon: 151.1700, altitude: 1200, onGround: false, velocity: 250, heading: 180, verticalRate: 8, lastContact: Date.now() },
-  { icao24: '7c6b0d', callsign: 'VOZ321', originCountry: 'Australia', lat: -33.9200, lon: 151.1600, altitude: 5000, onGround: false, velocity: 400, heading: 270, verticalRate: 0, lastContact: Date.now() },
-  { icao24: '7c6b0e', callsign: 'QFA999', originCountry: 'Australia', lat: -33.9600, lon: 151.1900, altitude: 8000, onGround: false, velocity: 450, heading: 0, verticalRate: 0, lastContact: Date.now() },
-];
-
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const bbox = searchParams.get('bbox');
+
     const url = new URL('https://opensky-network.org/api/states/all');
-    url.searchParams.set('lamin', '-34.2');
-    url.searchParams.set('lomin', '150.8');
-    url.searchParams.set('lamax', '-33.7');
-    url.searchParams.set('lomax', '151.4');
+
+    // If bbox is provided, use it; otherwise use Australia as default
+    if (bbox) {
+      const [lamin, lomin, lamax, lomax] = bbox.split(',');
+      url.searchParams.set('lamin', lamin);
+      url.searchParams.set('lomin', lomin);
+      url.searchParams.set('lamax', lamax);
+      url.searchParams.set('lomax', lomax);
+      console.log('[API] Using bbox:', { lamin, lomin, lamax, lomax });
+    } else {
+      // Default to Australia
+      url.searchParams.set('lamin', '-43.6');
+      url.searchParams.set('lomin', '113.0');
+      url.searchParams.set('lamax', '-10.0');
+      url.searchParams.set('lomax', '154.0');
+      console.log('[API] Using default Australia bbox');
+    }
 
     const headers: HeadersInit = {};
     
+    // OpenSky uses Basic Auth
     if (process.env.OPENSKY_USERNAME && process.env.OPENSKY_PASSWORD) {
       const auth = Buffer.from(
         `${process.env.OPENSKY_USERNAME}:${process.env.OPENSKY_PASSWORD}`
@@ -32,16 +43,22 @@ export async function GET() {
       next: { revalidate: 10 }
     });
 
-    if (res.status === 429 || res.status === 401 || !res.ok) {
-      console.log('[API] OpenSky unavailable, using mock data');
-      return NextResponse.json(MOCK_FLIGHTS);
+    if (res.status === 429) {
+      return NextResponse.json({ error: 'Rate limited - try again later' }, { status: 429 });
+    }
+    if (res.status === 401) {
+      return NextResponse.json({ error: 'Unauthorized - check credentials' }, { status: 401 });
+    }
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
     }
 
     const data = await res.json();
-    console.log(`[API] Got ${data.states?.length || 0} states`);
+    console.log(`[API] Got ${data.states?.length || 0} flights`);
 
     if (!data.states?.length) {
-      return NextResponse.json(MOCK_FLIGHTS);
+      return NextResponse.json([]);
     }
 
     const flights = data.states
@@ -62,7 +79,7 @@ export async function GET() {
 
     return NextResponse.json(flights);
   } catch (err: any) {
-    console.error('[API] Error, using mock:', err);
-    return NextResponse.json(MOCK_FLIGHTS);
+    console.error('[API] Error:', err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

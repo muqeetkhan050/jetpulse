@@ -1,3 +1,6 @@
+
+
+
 'use client';
 
 import { useState } from 'react';
@@ -5,13 +8,13 @@ import { useFlights, type Flight } from '@/hooks/useFlights';
 import Map from './Map/Map';
 import FlightLayers from './Map/FlightLayers';
 import { useFlightTrails } from '@/hooks/useFlightTrails';
-import AgentModal from './AgentModal';
 
-const SYDNEY_AIRPORT_BBOX = '-34.04,150.9,-33.88,151.3';
+
+const AUSTRALIA_BBOX = '-43.6,113.0,-10.0,154.0';
 
 export default function FlightTracker() {
   const { flights, loading, error, refetch } = useFlights({
-    bbox: SYDNEY_AIRPORT_BBOX,
+    bbox: AUSTRALIA_BBOX,
     refreshInterval: 10000,
   });
 
@@ -76,17 +79,7 @@ export default function FlightTracker() {
         </div>
       )}
 
-      {/* Agent Modal */}
-      <AgentModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        planeId={selectedPlane?.icao24 || ''}
-        planeInfo={selectedPlane ? {
-          callsign: selectedPlane.callsign,
-          altitude: selectedPlane.altitude,
-          originCountry: selectedPlane.originCountry,
-        } : undefined}
-      />
+
     </div>
   );
 }
