@@ -164,13 +164,13 @@ export default function Speed({ flight }: SpeedProps) {
                     
                     <div className="relative">
                       {/* Label with icon */}
-                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-1">
+                      <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-1">
                         <IconComponent />
                         {item.label}
                       </div>
                       
                       {/* Value with dynamic color - NOW READABLE */}
-                      <div className={`text-sm font-mono font-bold ${item.color} transition-colors duration-300 group-hover:brightness-125`}>
+                      <div className={`text-xs font-mono font-bold ${item.color} transition-colors duration-300 group-hover:brightness-125`}>
                         {item.value}
                       </div>
                     </div>
@@ -217,3 +217,4 @@ export default function Speed({ flight }: SpeedProps) {
     );
   }
 }
+

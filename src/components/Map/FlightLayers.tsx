@@ -1,6 +1,5 @@
 
 
-
 'use client';
 import { useEffect, useContext, useState, useMemo } from 'react';
 import { MapboxOverlay } from '@deck.gl/mapbox';
@@ -150,4 +149,3 @@ export default function FlightLayers({
 
   return null;
 }
-
