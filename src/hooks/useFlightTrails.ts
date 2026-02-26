@@ -11,8 +11,8 @@ export interface FlightTrail {
   glowUntil?: number;
 }
 
-const TAKEOFF_ALTITUDE = 100; // Minimum altitude to consider "flying"
-const MAX_TRAIL_POINTS = 100; // Max points to keep in trail
+const TAKEOFF_ALTITUDE = 100; 
+const MAX_TRAIL_POINTS = 100; 
 
 export function useFlightTrails(flights: Flight[]) {
   const [trails, setTrails] = useState<FlightTrail[]>([]);

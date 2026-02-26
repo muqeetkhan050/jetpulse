@@ -63,5 +63,6 @@ export function useFlights(options: UseFlightsOptions = {}) {
     return () => clearInterval(interval);
   }, [fetchFlights, refreshInterval]);
 
-  return { flights, loading, error, refetch: fetchFlights };
+  // return { flights, loading, error, refetch: fetchFlights };
+  return { flights, loading, error, refetch: fetchFlights, connected: !error };
 }
