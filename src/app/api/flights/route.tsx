@@ -27,16 +27,7 @@ export async function GET(request: Request) {
     }
 
     const headers: HeadersInit = {};
-    
-    // // OpenSky uses Basic Auth
-    // if (process.env.OPENSKY_USERNAME && process.env.OPENSKY_PASSWORD) {
-    //   const auth = Buffer.from(
-    //     `${process.env.OPENSKY_USERNAME}:${process.env.OPENSKY_PASSWORD}`
-    //   ).toString('base64');
-    //   headers['Authorization'] = `Basic ${auth}`;
-    // }
 
-    // console.log('[API] Fetching:', url.toString());
     
     const res = await fetch(url.toString(), { 
       headers,
